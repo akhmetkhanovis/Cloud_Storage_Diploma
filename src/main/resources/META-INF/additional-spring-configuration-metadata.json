@@ -1,0 +1,18 @@
+{
+  "properties": [
+    {
+      "name": "application.jwt.secretKey",
+      "type": "java.lang.String",
+      "description": "Description for application.jwt.secretKey."
+    },
+    {
+      "name": "application.jwt.claimsMapKey",
+      "type": "java.lang.String",
+      "description": "Description for application.jwt.claimsMapKey."
+    },
+    {
+      "name": "application.jwt.claimsMapKey",
+      "type": "java.lang.String",
+      "description": "Description for application.jwt.claimsMapKey."
+    }
+  ] }
