@@ -2,28 +2,23 @@ package ru.netology.cloudstorage.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 
-@Service
+@Component
 @AllArgsConstructor
-public class JwtTokenProvider implements Serializable {
-    @Serial
-    private static final long serialVersionUID = -4412363932038316680L;
+public class JwtTokenProvider {
 
     private final JwtConfig jwtConfig;
-    private final SecretKey secretKey;
 
     public Claims parseToken(String token) {
         return Jwts.parser()
-                .setSigningKey(secretKey)
+                .setSigningKey(jwtConfig.getSecretKey())
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -42,17 +37,18 @@ public class JwtTokenProvider implements Serializable {
                 .claim(jwtConfig.getClaimsMapKey(), userDetails.getAuthorities())
                 .setIssuedAt(new Date())
                 .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(jwtConfig.getTokenExpirationAfterDays())))
-                .signWith(secretKey)
+                .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecretKey())
                 .compact();
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
+        String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private Boolean isTokenExpired(String token) {
-        final Date expiration = parseToken(token).getExpiration();
+        final Date expiration = getExpirationDate(token);
         return expiration.before(new Date());
     }
+
 }

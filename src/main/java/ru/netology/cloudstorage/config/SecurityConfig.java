@@ -1,6 +1,7 @@
 package ru.netology.cloudstorage.config;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,11 +11,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import ru.netology.cloudstorage.security.JwtAuthenticationEntryPoint;
-import ru.netology.cloudstorage.security.JwtVerifierFilter;
-import ru.netology.cloudstorage.service.ApplicationUserService;
+import ru.netology.cloudstorage.jwt.JwtAuthenticationEntryPoint;
+import ru.netology.cloudstorage.jwt.JwtVerifierFilter;
+import ru.netology.cloudstorage.service.ApplicationUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -23,43 +24,29 @@ import ru.netology.cloudstorage.service.ApplicationUserService;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final ApplicationUserDetailsService userDetailsService;
     private final JwtVerifierFilter jwtVerifierFilter;
-    private final ApplicationUserService applicationUserService;
-    private final PasswordConfig passwordConfig;
-
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors().and().csrf().disable()
-                .headers().frameOptions().deny()
+                .headers().frameOptions().disable()
                 .and()
-                .authorizeRequests().antMatchers("/authenticate").permitAll()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilterAfter(jwtVerifierFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeRequests().antMatchers("/h2-console/**", "/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .logout().logoutUrl("/logout").deleteCookies("JSESSIONID").clearAuthentication(true).logoutSuccessUrl("/login")
                 .and()
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        httpSecurity.addFilterBefore(jwtVerifierFilter, UsernamePasswordAuthenticationFilter.class);
-
-//        httpSecurity
-//                .csrf().disable()
-//                .authorizeRequests()
-//                .antMatchers("/authenticate", "/all-users").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//
-//        httpSecurity.addFilterBefore(jwtVerifierFilter, UsernamePasswordAuthenticationFilter.class);
-
+                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint);
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(applicationUserService).passwordEncoder(passwordConfig.passwordEncoder());
+    @Autowired
+    protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 
     @Override

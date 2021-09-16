@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    image: 'csapp:latest'
+    build:
+      context: .
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/csdb?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+
+  db:
+    image: 'mysql:latest'
+    environment:
+      - MYSQL_ROOT_PASSWORD=password

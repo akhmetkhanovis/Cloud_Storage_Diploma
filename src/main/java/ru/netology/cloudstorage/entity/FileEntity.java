@@ -11,27 +11,32 @@ import java.util.Objects;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter
 @Setter
 @ToString
 @Table(name = "cs_files")
 public class FileEntity {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     private Long id;
 
     @JsonProperty("filename")
     @Column(nullable = false)
     private String filename;
 
-    @JsonProperty("size")
-    private Long size;
-
     @JsonIgnore
     @Column(nullable = false)
-    private String filepath;
+    private String type;
+
+    @JsonIgnore
+    @Lob
+    private byte[] fileData;
+
+    @JsonProperty("size")
+    private Long size;
 
     @JsonIgnore
     @OneToOne

@@ -5,7 +5,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,9 +15,7 @@ import ru.netology.cloudstorage.jwt.JwtTokenProvider;
 import ru.netology.cloudstorage.model.AuthenticationRequest;
 import ru.netology.cloudstorage.model.AuthenticationResponse;
 import ru.netology.cloudstorage.model.ErrorResponse;
-import ru.netology.cloudstorage.service.ApplicationUserService;
-
-import javax.servlet.http.HttpServletResponse;
+import ru.netology.cloudstorage.service.ApplicationUserDetailsService;
 
 @RestController
 @CrossOrigin
@@ -26,17 +23,17 @@ import javax.servlet.http.HttpServletResponse;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final ApplicationUserService applicationUserService;
+    private final ApplicationUserDetailsService userDetailsService;
     private final JwtTokenProvider tokenProvider;
 
     protected final Log logger = LogFactory.getLog(this.getClass());
 
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authRequest) {
-        authenticate(authRequest.getUsername(), authRequest.getPassword());
-        UserDetails userDetails = applicationUserService.loadUserByUsername(authRequest.getUsername());
-        String token = tokenProvider.generateToken(userDetails);
-        logger.info(String.format("User \"%s\" logged in", userDetails.getUsername()));
+    public ResponseEntity<?> createToken(@RequestBody AuthenticationRequest authenticationRequest) {
+        authenticate(authenticationRequest.getLogin(), authenticationRequest.getPassword());
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getLogin());
+        final String token = tokenProvider.generateToken(userDetails);
+        logger.info(String.format("User %s logged in", userDetails.getUsername()));
         return ResponseEntity.ok(new AuthenticationResponse(token));
     }
 
@@ -44,25 +41,21 @@ public class AuthController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Incorrect username or password");
+            throw new BadCredentialsException("Incorrect login or password");
         }
     }
 
-    @GetMapping()
-    public String home() {
-        return ("<h1>Welcome</h1>");
-    }
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String admin() {
-        return ("<h1>Welcome Admin</h1>");
-    }
-
-    @GetMapping("/user")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public String user() {
-        return ("<h1>Welcome User</h1>");
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("${application.jwt.authorizationHeader}") String token) {
+        String username = tokenProvider.getUsernameFromToken(token);
+        try {
+            userDetailsService.loadUserByUsername(username);
+        } catch (UsernameNotFoundException e) {
+            logger.info(String.format("User %s is not authenticated", username));
+            throw new UsernameNotFoundException(String.format("User %s is not authenticated", username));
+        }
+        logger.info(String.format("User %s logged out", username));
+        return ResponseEntity.ok(HttpStatus.OK.getReasonPhrase());
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)

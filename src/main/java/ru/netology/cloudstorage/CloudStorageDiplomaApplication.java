@@ -6,16 +6,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import ru.netology.cloudstorage.entity.UserEntity;
 import ru.netology.cloudstorage.repository.UserRepository;
 
 import javax.transaction.Transactional;
 
-import static ru.netology.cloudstorage.enums.ApplicationUserRole.*;
+import static ru.netology.cloudstorage.enums.ApplicationUserRole.ADMIN;
+import static ru.netology.cloudstorage.enums.ApplicationUserRole.USER;
 
 @SpringBootApplication
-@Component
 @AllArgsConstructor
 public class CloudStorageDiplomaApplication implements CommandLineRunner {
 
@@ -32,22 +31,19 @@ public class CloudStorageDiplomaApplication implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         userRepository.save(
-                new UserEntity("user",
-                        passwordEncoder.encode("password"),
-                        USER,
-                        USER.getGrantedAuthorities(),
-                        true,
-                        true,
-                        true,
-                        true));
+                UserEntity.builder().username("user")
+                        .password(passwordEncoder.encode("user"))
+                        .role(USER)
+                        .grantedAuthorities(USER.getGrantedAuthorities())
+                        .build()
+        );
 
-        userRepository.save(new UserEntity("admin",
-                passwordEncoder.encode("admin"),
-                ADMIN,
-                ADMIN.getGrantedAuthorities(),
-                true,
-                true,
-                true,
-                true));
+        userRepository.save(
+                UserEntity.builder().username("admin")
+                        .password(passwordEncoder.encode("admin"))
+                        .role(ADMIN)
+                        .grantedAuthorities(ADMIN.getGrantedAuthorities())
+                        .build()
+        );
     }
 }
