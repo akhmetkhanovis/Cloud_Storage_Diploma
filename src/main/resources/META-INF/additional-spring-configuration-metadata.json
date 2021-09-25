@@ -11,8 +11,8 @@
       "description": "Description for application.jwt.claimsMapKey."
     },
     {
-      "name": "application.jwt.claimsMapKey",
+      "name": "origin.allowed",
       "type": "java.lang.String",
-      "description": "Description for application.jwt.claimsMapKey."
+      "description": "Description for origin.allowed."
     }
   ] }

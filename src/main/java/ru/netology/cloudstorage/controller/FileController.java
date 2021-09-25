@@ -32,10 +32,10 @@ public class FileController {
     protected final Log logger = LogFactory.getLog(this.getClass());
 
     @PostMapping()
-    public ResponseEntity<?> uploadFile(@RequestParam(FILE_NAME) String fileName,
+    public ResponseEntity<?> uploadFile(@RequestParam(FILE_NAME) String filename,
                                         @RequestPart(FILE) @NotNull MultipartFile file) {
         try {
-            fileService.uploadFile(fileName, file);
+            fileService.uploadFile(filename, file);
         } catch (IOException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), 400));
         }
@@ -57,7 +57,7 @@ public class FileController {
         FileEntity fileEntity = fileService.downloadFile(filename);
         logger.info("Downloading file " + fileEntity.getFilename());
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(fileEntity.getType()))
+                .contentType(MediaType.parseMediaType(fileEntity.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename = " + fileEntity.getFilename())
                 .body(new ByteArrayResource(fileEntity.getFileData()));

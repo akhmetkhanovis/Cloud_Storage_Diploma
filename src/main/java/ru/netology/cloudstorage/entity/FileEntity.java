@@ -29,14 +29,14 @@ public class FileEntity {
 
     @JsonIgnore
     @Column(nullable = false)
-    private String type;
+    private String fileType;
 
     @JsonIgnore
     @Lob
     private byte[] fileData;
 
     @JsonProperty("size")
-    private Long size;
+    private Long fileSize;
 
     @JsonIgnore
     @OneToOne

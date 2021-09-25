@@ -13,7 +13,6 @@ import ru.netology.cloudstorage.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 @Service
@@ -25,13 +24,13 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional
-    public FileEntity uploadFile(String fileName, MultipartFile file) {
+    public FileEntity uploadFile(String filename, MultipartFile file) {
         try {
             FileEntity fileEntity = FileEntity.builder()
-                    .filename(fileName)
-                    .type(file.getContentType())
+                    .filename(filename)
+                    .fileType(file.getContentType())
                     .fileData(file.getBytes())
-                    .size(file.getSize())
+                    .fileSize(file.getSize())
                     .userEntity(getUserFromContext())
                     .build();
             return fileRepository.save(fileEntity);
@@ -43,8 +42,8 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional
-    public FileEntity downloadFile(String fileName) {
-        return fileRepository.findByFilenameAndUserEntity(fileName, getUserFromContext());
+    public FileEntity downloadFile(String filename) {
+        return fileRepository.findByFilenameAndUserEntity(filename, getUserFromContext());
     }
 
     @Override
