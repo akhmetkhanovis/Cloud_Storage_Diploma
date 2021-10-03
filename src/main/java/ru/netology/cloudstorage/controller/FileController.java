@@ -18,9 +18,10 @@ import ru.netology.cloudstorage.model.NewFileName;
 import ru.netology.cloudstorage.service.FileService;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
-@RequestMapping(value = "/file")
+@RequestMapping
 @AllArgsConstructor
 public class FileController {
 
@@ -29,20 +30,15 @@ public class FileController {
 
     private final FileService fileService;
 
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    private static final Log logger = LogFactory.getLog(FileController.class);
 
-    @PostMapping()
-    public ResponseEntity<?> uploadFile(@RequestParam(FILE_NAME) String filename,
-                                        @RequestPart(FILE) @NotNull MultipartFile file) {
-        try {
-            fileService.uploadFile(filename, file);
-        } catch (IOException e) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), 400));
-        }
-        return ResponseEntity.ok().body(null);
+    @PostMapping("/file")
+    public void uploadFile(@RequestParam(FILE_NAME) String filename,
+                           @RequestPart(FILE) @NotNull MultipartFile file) throws IOException {
+        fileService.uploadFile(filename, file);
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/file")
     public ResponseEntity<?> deleteFile(@RequestParam(FILE_NAME) String filename) {
         try {
             fileService.deleteFile(filename);
@@ -52,8 +48,13 @@ public class FileController {
         return ResponseEntity.ok().body(null);
     }
 
-    @GetMapping(produces = MediaType.ALL_VALUE)
-    public ResponseEntity<Resource> downloadFile(@RequestParam(FILE_NAME) String filename) throws IOException {
+    @GetMapping("/list")
+    List<FileEntity> getFilesList(@RequestParam int limit) {
+        return fileService.getFilesList(limit);
+    }
+
+    @GetMapping(path = "/file", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<Resource> downloadFile(@RequestParam(FILE_NAME) String filename) {
         FileEntity fileEntity = fileService.downloadFile(filename);
         logger.info("Downloading file " + fileEntity.getFilename());
         return ResponseEntity.ok()
@@ -63,7 +64,7 @@ public class FileController {
                 .body(new ByteArrayResource(fileEntity.getFileData()));
     }
 
-    @PutMapping()
+    @PutMapping("/file")
     public ResponseEntity<?> updateFile(@RequestParam(FILE_NAME) String filename, @RequestBody NewFileName newFileName) {
         try {
             fileService.renameFile(filename, newFileName.getFilename());
