@@ -11,9 +11,9 @@ import java.util.List;
 @Repository
 public interface FileRepository extends JpaRepository<FileEntity, Long> {
 
-    List<FileEntity> findAllByUserEntity_Username(String username, Sort sort);
+    List<FileEntity> findAllByFileOwner(String username, Sort sort);
 
-    void removeFileByFilenameAndUserEntity(String fileName, UserEntity userEntity);
+    void removeFileByFilenameAndFileOwner(String fileName, String fileOwner);
 
-    FileEntity findByFilenameAndUserEntity(String fileName, UserEntity userEntity);
+    FileEntity findByFilenameAndFileOwner(String fileName, String fileOwner);
 }

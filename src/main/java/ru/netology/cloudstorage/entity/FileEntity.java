@@ -39,8 +39,7 @@ public class FileEntity {
     private Long fileSize;
 
     @JsonIgnore
-    @OneToOne
-    private UserEntity userEntity;
+    private String fileOwner;
 
     @Override
     public boolean equals(Object o) {
