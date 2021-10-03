@@ -1,6 +1,7 @@
 package ru.netology.cloudstorage.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -12,7 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
+@AllArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private ObjectMapper mapper;
 
     @Override
     public void commence(HttpServletRequest request,
@@ -21,7 +25,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
-        ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(new ErrorResponse(e.getMessage(), HttpStatus.UNAUTHORIZED.value())));
     }
 }
