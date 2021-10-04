@@ -52,7 +52,6 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
                                             Authentication authResult) throws IOException, ServletException {
         UserDetails userDetails = userDetailsService.loadUserByUsername(authResult.getName());
         String token = tokenProvider.generateToken(userDetails);
-
-        response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getTokenPrefix() + token);
+        response.setHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getTokenPrefix() + token);
     }
 }

@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.netology.cloudstorage.jwt.*;
 import ru.netology.cloudstorage.service.ApplicationUserDetailsService;
 
@@ -25,9 +24,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationUserDetailsService userDetailsService;
     private final JwtConfig jwtConfig;
     private final ObjectMapper mapper;
-    private final ApplicationUserDetailsService userDetailsService;
     private final JwtTokenProvider tokenProvider;
 
     @Override
@@ -37,9 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(
-                        authenticationManagerBean(), jwtConfig, mapper, userDetailsService, tokenProvider))
-                .addFilterAfter(new JwtVerifierFilter(jwtConfig, userDetailsService, tokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, mapper, userDetailsService, tokenProvider))
+                .addFilterAfter(new JwtVerifierFilter(jwtConfig, userDetailsService, tokenProvider), JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/h2-console/**", "/login").permitAll()
                 .anyRequest().authenticated()

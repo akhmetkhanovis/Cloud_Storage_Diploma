@@ -1,14 +1,11 @@
 package ru.netology.cloudstorage.jwt;
 
 import com.google.common.base.Strings;
-import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.netology.cloudstorage.service.ApplicationUserDetailsService;
 
@@ -18,41 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Component
 @AllArgsConstructor
 public class JwtVerifierFilter extends OncePerRequestFilter {
-
-//    private final ApplicationUserDetailsService userDetailsService;
-//    private final JwtTokenProvider tokenProvider;
-//    private final JwtConfig jwtConfig;
-//
-//    @Override
-//    protected void doFilterInternal(HttpServletRequest request,
-//                                    HttpServletResponse response,
-//                                    FilterChain filterChain) throws ServletException, IOException {
-//        final String authorizationHeader = request.getHeader(jwtConfig.getAuthorizationHeader());
-//
-//        String username = null;
-//        String token = null;
-//
-//        if (!Strings.isNullOrEmpty(authorizationHeader) && authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
-//            token = authorizationHeader.replace(jwtConfig.getTokenPrefix(), "");
-//            username = tokenProvider.getUsernameFromToken(token);
-//        }
-//
-//        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-//            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-//
-//            if (tokenProvider.validateToken(token, userDetails)) {
-//                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-//                        userDetails, null, userDetails.getAuthorities());
-//                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//
-//                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-//            }
-//        }
-//        filterChain.doFilter(request, response);
-//    }
 
     private final JwtConfig jwtConfig;
     private final ApplicationUserDetailsService userDetailsService;
@@ -62,34 +26,28 @@ public class JwtVerifierFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        final String authorizationHeader = request.getHeader(jwtConfig.getAuthorizationHeader());
 
-        String authorizationHeader = request.getHeader(jwtConfig.getAuthorizationHeader());
+        String username = null;
+        String token = null;
 
-        if (Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
-            filterChain.doFilter(request, response);
-            return;
+        if (!Strings.isNullOrEmpty(authorizationHeader) && authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
+            token = authorizationHeader.replace(jwtConfig.getTokenPrefix(), "");
+            username = tokenProvider.getUsernameFromToken(token);
         }
 
-        String token = authorizationHeader.replace(jwtConfig.getTokenPrefix(), "");
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-        try {
+            if (tokenProvider.validateToken(token, userDetails)) {
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            String username = tokenProvider.getUsernameFromToken(token);
-
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    userDetails.getAuthorities()
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        } catch (JwtException e) {
-            throw new IllegalStateException(String.format("Token %s cannot be trusted", token));
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
         }
-
         filterChain.doFilter(request, response);
     }
+
 }
