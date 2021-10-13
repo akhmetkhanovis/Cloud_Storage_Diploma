@@ -36,11 +36,6 @@ public class FileController {
 
     private static final Log logger = LogFactory.getLog(FileController.class);
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthenticationRequest authenticationRequest) {
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @PostMapping("/file")
     public void uploadFile(@RequestParam(FILE_NAME) String filename,
                            @RequestPart(FILE) @NotNull MultipartFile file) throws IOException {

@@ -1,6 +1,5 @@
 package ru.netology.cloudstorage.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +12,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.netology.cloudstorage.jwt.*;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ru.netology.cloudstorage.jwt.JwtAuthenticationEntryPoint;
+import ru.netology.cloudstorage.jwt.JwtConfig;
+import ru.netology.cloudstorage.jwt.JwtTokenProvider;
+import ru.netology.cloudstorage.jwt.JwtVerifierFilter;
 import ru.netology.cloudstorage.service.ApplicationUserDetailsService;
 
 @Configuration
@@ -23,11 +26,9 @@ import ru.netology.cloudstorage.service.ApplicationUserDetailsService;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final PasswordEncoder passwordEncoder;
     private final ApplicationUserDetailsService userDetailsService;
-    private final JwtConfig jwtConfig;
-    private final ObjectMapper mapper;
-    private final JwtTokenProvider tokenProvider;
+    private final JwtVerifierFilter jwtVerifierFilter;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -36,8 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, mapper, userDetailsService, tokenProvider))
-                .addFilterAfter(new JwtVerifierFilter(jwtConfig, userDetailsService, tokenProvider), JwtUsernameAndPasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtVerifierFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/h2-console/**", "/login").permitAll()
                 .anyRequest().authenticated()

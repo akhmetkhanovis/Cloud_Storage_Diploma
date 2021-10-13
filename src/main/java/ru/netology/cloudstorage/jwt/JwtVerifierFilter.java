@@ -6,6 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.netology.cloudstorage.service.ApplicationUserDetailsService;
 
@@ -15,12 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Component
 @AllArgsConstructor
 public class JwtVerifierFilter extends OncePerRequestFilter {
 
-    private final JwtConfig jwtConfig;
     private final ApplicationUserDetailsService userDetailsService;
     private final JwtTokenProvider tokenProvider;
+    private final JwtConfig jwtConfig;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
