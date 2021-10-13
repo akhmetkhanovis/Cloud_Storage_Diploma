@@ -26,7 +26,7 @@ public class AuthController {
     private final ApplicationUserDetailsService userDetailsService;
     private final JwtTokenProvider tokenProvider;
 
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    private static final Log logger = LogFactory.getLog(AuthController.class);
 
     @PostMapping("/login")
     public ResponseEntity<?> createToken(@RequestBody AuthenticationRequest authenticationRequest) {
