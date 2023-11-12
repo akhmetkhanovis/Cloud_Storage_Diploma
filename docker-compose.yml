@@ -5,11 +5,17 @@ services:
     image: csapp
     build: .
     container_name: csapp
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db/csdb?createDatabaseIfNotExist=true
     depends_on:
       - db
     ports:
       - "8081:8081"
 
   db:
-    image: 1000kit/h2
+    image: mysql
     container_name: db
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
