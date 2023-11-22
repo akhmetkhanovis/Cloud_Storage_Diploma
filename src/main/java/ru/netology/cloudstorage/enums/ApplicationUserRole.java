@@ -6,8 +6,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static ru.netology.cloudstorage.enums.ApplicationUserPermission.*;
 import static ru.netology.cloudstorage.enums.ApplicationUserPermission.FILE_DELETE;
+import static ru.netology.cloudstorage.enums.ApplicationUserPermission.FILE_DOWNLOAD;
+import static ru.netology.cloudstorage.enums.ApplicationUserPermission.FILE_MODERATE;
+import static ru.netology.cloudstorage.enums.ApplicationUserPermission.FILE_READ;
+import static ru.netology.cloudstorage.enums.ApplicationUserPermission.FILE_UPLOAD;
 
 public enum ApplicationUserRole {
     USER(Sets.newHashSet(FILE_READ, FILE_UPLOAD, FILE_DOWNLOAD, FILE_DELETE)),

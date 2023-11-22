@@ -1,6 +1,6 @@
 package ru.netology.cloudstorage.config;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,15 +14,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.netology.cloudstorage.jwt.JwtAuthenticationEntryPoint;
-import ru.netology.cloudstorage.jwt.JwtConfig;
-import ru.netology.cloudstorage.jwt.JwtTokenProvider;
 import ru.netology.cloudstorage.jwt.JwtVerifierFilter;
-import ru.netology.cloudstorage.service.ApplicationUserDetailsService;
+import ru.netology.cloudstorage.service.impl.ApplicationUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;

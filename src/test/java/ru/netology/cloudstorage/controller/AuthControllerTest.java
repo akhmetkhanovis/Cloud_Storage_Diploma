@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.netology.cloudstorage.model.AuthenticationRequest;
 
@@ -15,15 +16,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@DirtiesContext
 @AutoConfigureMockMvc
-public class AuthControllerTest {
+class AuthControllerTest {
 
-    public static final String LIST_LIMIT_3 = "/list?limit=3";
-    public static final String USER = "user";
-    public static final String PASSWORD = "user";
-    public static final String LOGIN = "/login";
-    public static final String WRONG_USER = "user23156";
-    public static final String WRONG_PASSWORD = "password23156";
+    private static final String LIST_ENDPOINT = "/list?limit=3";
+    private static final String USER = "user";
+    private static final String PASSWORD = "user";
+    private static final String LOGIN_ENDPOINT = "/login";
+    private static final String WRONG_USER = "user23156";
+    private static final String WRONG_PASSWORD = "password23156";
 
     @Autowired
     MockMvc mockMvc;
@@ -35,7 +37,7 @@ public class AuthControllerTest {
         String jsonRequest = mapper.writeValueAsString(authenticationRequest);
 
         mockMvc
-                .perform(post(LOGIN)
+                .perform(post(LOGIN_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isOk());
@@ -48,7 +50,7 @@ public class AuthControllerTest {
         String jsonRequest = mapper.writeValueAsString(authenticationRequest);
 
         mockMvc
-                .perform(post(LOGIN)
+                .perform(post(LOGIN_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isBadRequest());
@@ -61,7 +63,7 @@ public class AuthControllerTest {
         String jsonRequest = mapper.writeValueAsString(authenticationRequest);
 
         mockMvc
-                .perform(post(LOGIN)
+                .perform(post(LOGIN_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isBadRequest());
@@ -70,11 +72,11 @@ public class AuthControllerTest {
     @Test
     @WithMockUser(username = USER, password = PASSWORD)
     void authorizedFilesListRequest() throws Exception {
-        mockMvc.perform(get(LIST_LIMIT_3)).andExpect(status().isOk());
+        mockMvc.perform(get(LIST_ENDPOINT)).andExpect(status().isOk());
     }
 
     @Test
     void unauthorizedFilesListRequest() throws Exception {
-        mockMvc.perform(get(LIST_LIMIT_3)).andExpect(status().isUnauthorized());
+        mockMvc.perform(get(LIST_ENDPOINT)).andExpect(status().isUnauthorized());
     }
 }
