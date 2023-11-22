@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface FileService {
 
-    public FileEntity uploadFile(String fileName, MultipartFile file) throws IOException;
+    void uploadFile(String fileName, MultipartFile file) throws IOException;
 
-    public FileEntity downloadFile(String fileName);
+    FileEntity downloadFile(String fileName);
 
-    public void deleteFile(String filename) throws IOException;
+    void deleteFile(String filename) throws IOException;
 
-    public List<FileEntity> getFilesList(int limit);
+    List<FileEntity> getFilesList(int limit);
 
     void renameFile(String filename, String newFileName) throws IOException;
 }
